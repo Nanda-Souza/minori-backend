@@ -1,5 +1,9 @@
 package com.db.minori_backend.domain.entity;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "categorias")
 @Getter
