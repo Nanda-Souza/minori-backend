@@ -17,6 +17,7 @@ public record ProdutoRequest(
         @PositiveOrZero(message = "A quantidade não pode ser negativa.")
         Integer quantidade,
 
+        @NotNull(message = "A descrição é obrigatória.")
         @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres.")
         String descricao,
 
