@@ -18,6 +18,13 @@ public class CategoriaService {
         this.categoriaRepository = categoriaRepository;
     }
 
+    private CategoriaResponse toResponse(Categoria categoria) {
+        return new CategoriaResponse(
+                categoria.getId(),
+                categoria.getNome()
+        );
+    }
+
     @Transactional
     public CategoriaResponse cadastrar(CategoriaRequest request) {
         Categoria categoria = new Categoria();
@@ -67,10 +74,5 @@ public class CategoriaService {
         categoriaRepository.delete(categoria);
     }
 
-    private CategoriaResponse toResponse(Categoria categoria) {
-        return new CategoriaResponse(
-                categoria.getId(),
-                categoria.getNome()
-        );
-    }
+
 }

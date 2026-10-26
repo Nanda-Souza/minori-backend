@@ -18,6 +18,13 @@ public class MarcaService {
         this.marcaRepository = marcaRepository;
     }
 
+    private MarcaResponse toResponse(Marca marca) {
+        return new MarcaResponse(
+                marca.getId(),
+                marca.getNome()
+        );
+    }
+
     @Transactional
     public MarcaResponse cadastrar(MarcaRequest request) {
         Marca marca = new Marca();
@@ -67,10 +74,4 @@ public class MarcaService {
         marcaRepository.delete(marca);
     }
 
-    private MarcaResponse toResponse(Marca marca) {
-        return new MarcaResponse(
-                marca.getId(),
-                marca.getNome()
-        );
-    }
 }
