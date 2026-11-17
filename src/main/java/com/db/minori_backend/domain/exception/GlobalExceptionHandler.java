@@ -106,6 +106,19 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResponse> argumentoInvalido(
+            IllegalArgumentException exception,
+            HttpServletRequest request
+    ) {
+        return criarResposta(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request,
+                null
+        );
+    }
+
     private ResponseEntity<ErroResponse> criarResposta(
             HttpStatus status,
             String mensagem,

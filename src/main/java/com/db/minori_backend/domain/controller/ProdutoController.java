@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -57,5 +57,24 @@ public class ProdutoController {
         produtoService.excluir(id);
 
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<ProdutoResponse>> filtrar(
+            @RequestParam(required = false) Long catalogoId,
+            @RequestParam(required = false) Long marcaId,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) BigDecimal precoMin,
+            @RequestParam(required = false) BigDecimal precoMax
+    ) {
+
+        return ResponseEntity.ok(
+                produtoService.filtrar(
+                        catalogoId,
+                        marcaId,
+                        categoriaId,
+                        precoMin,
+                        precoMax
+                )
+        );
     }
 }

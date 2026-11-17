@@ -8,7 +8,10 @@ import com.db.minori_backend.domain.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
-import com.db.minori_backend.domain.exception.RegraNegocioException;
+import com.db.minori_backend.domain.specification.ProdutoSpecification;
+import java.math.BigDecimal;
+
+
 
 import java.util.List;
 
@@ -90,6 +93,49 @@ public class ProdutoService {
         Produto produto = buscarProduto(id);
 
         produtoRepository.delete(produto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProdutoResponse> filtrar(
+            Long catalogoId,
+            Long marcaId,
+            Long categoriaId,
+            BigDecimal precoMin,
+            BigDecimal precoMax
+    ) {
+
+        if (precoMin != null && precoMin.signum() < 0) {
+            throw new IllegalArgumentException(
+                    "O preço mínimo não pode ser negativo."
+            );
+        }
+
+        if (precoMax != null && precoMax.signum() < 0) {
+            throw new IllegalArgumentException(
+                    "O preço máximo não pode ser negativo."
+            );
+        }
+
+        if (precoMin != null && precoMax != null
+                && precoMin.compareTo(precoMax) > 0) {
+
+            throw new IllegalArgumentException(
+                    "O preço mínimo não pode ser maior que o preço máximo."
+            );
+        }
+
+        var specification = ProdutoSpecification.comFiltros(
+                catalogoId,
+                marcaId,
+                categoriaId,
+                precoMin,
+                precoMax
+        );
+
+        return produtoRepository.findAll(specification)
+                .stream()
+                .map(produtoMapper::toResponse)
+                .toList();
     }
 
     private Produto buscarProduto(Long id) {
