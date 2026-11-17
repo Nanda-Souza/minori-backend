@@ -7,6 +7,8 @@ import com.db.minori_backend.domain.repository.CategoriaRepository;
 import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class CategoriaService {
     public CategoriaResponse buscarPorId(Long id) {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada."));
+                        new RecursoNaoEncontradoException("Categoria não encontrada."));
 
         return toResponse(categoria);
     }
@@ -62,7 +64,7 @@ public class CategoriaService {
     public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada."));
+                        new RecursoNaoEncontradoException("Categoria não encontrada."));
 
         categoria.setNome(request.nome());
 
@@ -76,11 +78,11 @@ public class CategoriaService {
 
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada."));
+                        new RecursoNaoEncontradoException("Categoria não encontrada."));
 
         if (produtoRepository.existsByCategoriaId(id)) {
-            throw new IllegalStateException(
-                    "Não é possível excluir a categoria, pois existem produtos associados a ela."
+            throw new RegraNegocioException(
+                    "Não é possível excluir a categoria, pois existem produtos associados!"
             );
         }
 

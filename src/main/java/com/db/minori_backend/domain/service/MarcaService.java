@@ -7,6 +7,8 @@ import com.db.minori_backend.domain.repository.MarcaRepository;
 import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class MarcaService {
     public MarcaResponse buscarPorId(Long id) {
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Marca não encontrada."));
+                        new RecursoNaoEncontradoException("Marca não encontrada."));
 
         return toResponse(marca);
     }
@@ -62,7 +64,7 @@ public class MarcaService {
     public MarcaResponse atualizar(Long id, MarcaRequest request) {
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Marca não encontrada."));
+                        new RecursoNaoEncontradoException("Marca não encontrada."));
 
         marca.setNome(request.nome());
 
@@ -76,11 +78,11 @@ public class MarcaService {
 
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Marca não encontrada."));
+                        new RecursoNaoEncontradoException("Marca não encontrada."));
 
         if (produtoRepository.existsByMarcaId(id)) {
-            throw new IllegalStateException(
-                    "Não é possível excluir a marca, pois existem produtos associados a ela."
+            throw new RegraNegocioException(
+                    "Não é possível excluir a marca, pois existem produtos associados!"
             );
         }
 

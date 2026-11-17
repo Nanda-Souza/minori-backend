@@ -5,9 +5,10 @@ import com.db.minori_backend.domain.dto.ProdutoResponse;
 import com.db.minori_backend.domain.entity.*;
 import com.db.minori_backend.domain.mapper.ProdutoMapper;
 import com.db.minori_backend.domain.repository.*;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -94,25 +95,25 @@ public class ProdutoService {
     private Produto buscarProduto(Long id) {
         return produtoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Produto não encontrado."));
+                        new RecursoNaoEncontradoException("Produto não encontrado."));
     }
 
     private Catalogo buscarCatalogo(Long id) {
         return catalogoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Catálogo não encontrado."));
+                        new RecursoNaoEncontradoException("Catálogo não encontrado."));
     }
 
     private Marca buscarMarca(Long id) {
         return marcaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Marca não encontrada."));
+                        new RecursoNaoEncontradoException("Marca não encontrada."));
     }
 
     private Categoria buscarCategoria(Long id) {
         return categoriaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada."));
+                        new RecursoNaoEncontradoException("Categoria não encontrada."));
     }
 
     private void preencherProduto(

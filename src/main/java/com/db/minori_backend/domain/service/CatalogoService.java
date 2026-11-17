@@ -7,6 +7,8 @@ import com.db.minori_backend.domain.repository.CatalogoRepository;
 import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class CatalogoService {
     public CatalogoResponse buscarPorId(Long id) {
         Catalogo catalogo = catalogoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Catálogo não encontrado."));
+                        new RecursoNaoEncontradoException("Catálogo não encontrado."));
 
         return toResponse(catalogo);
     }
@@ -62,7 +64,7 @@ public class CatalogoService {
     public CatalogoResponse atualizar(Long id, CatalogoRequest request) {
         Catalogo catalogo = catalogoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Catálogo não encontrado."));
+                        new RecursoNaoEncontradoException("Catálogo não encontrado."));
 
         catalogo.setNome(request.nome());
 
@@ -76,11 +78,11 @@ public class CatalogoService {
 
         Catalogo catalogo = catalogoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Catálogo não encontrado."));
+                        new RecursoNaoEncontradoException("Catálogo não encontrado."));
 
         if (produtoRepository.existsByCatalogoId(id)) {
             throw new IllegalStateException(
-                    "Não é possível excluir o catálogo, pois existem produtos associados a ele."
+                    "Não é possível excluir o catálogo, pois existem produtos associados!"
             );
         }
 
