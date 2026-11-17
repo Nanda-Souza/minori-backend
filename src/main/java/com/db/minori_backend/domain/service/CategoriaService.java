@@ -4,6 +4,7 @@ import com.db.minori_backend.domain.dto.CategoriaRequest;
 import com.db.minori_backend.domain.dto.CategoriaResponse;
 import com.db.minori_backend.domain.entity.Categoria;
 import com.db.minori_backend.domain.repository.CategoriaRepository;
+import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +14,14 @@ import java.util.List;
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
+    private final ProdutoRepository produtoRepository;
 
-    public CategoriaService(CategoriaRepository categoriaRepository) {
+    public CategoriaService(
+            CategoriaRepository categoriaRepository,
+            ProdutoRepository produtoRepository
+    ) {
         this.categoriaRepository = categoriaRepository;
+        this.produtoRepository = produtoRepository;
     }
 
     private CategoriaResponse toResponse(Categoria categoria) {
@@ -67,9 +73,16 @@ public class CategoriaService {
 
     @Transactional
     public void excluir(Long id) {
+
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Categoria não encontrada."));
+
+        if (produtoRepository.existsByCategoriaId(id)) {
+            throw new IllegalStateException(
+                    "Não é possível excluir a categoria, pois existem produtos associados a ela."
+            );
+        }
 
         categoriaRepository.delete(categoria);
     }

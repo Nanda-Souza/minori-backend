@@ -4,6 +4,7 @@ import com.db.minori_backend.domain.dto.MarcaRequest;
 import com.db.minori_backend.domain.dto.MarcaResponse;
 import com.db.minori_backend.domain.entity.Marca;
 import com.db.minori_backend.domain.repository.MarcaRepository;
+import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +14,14 @@ import java.util.List;
 public class MarcaService {
 
     private final MarcaRepository marcaRepository;
+    private final ProdutoRepository produtoRepository;
 
-    public MarcaService(MarcaRepository marcaRepository) {
+    public MarcaService(
+            MarcaRepository marcaRepository,
+            ProdutoRepository produtoRepository
+    ) {
         this.marcaRepository = marcaRepository;
+        this.produtoRepository = produtoRepository;
     }
 
     private MarcaResponse toResponse(Marca marca) {
@@ -67,9 +73,16 @@ public class MarcaService {
 
     @Transactional
     public void excluir(Long id) {
+
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Marca não encontrada."));
+
+        if (produtoRepository.existsByMarcaId(id)) {
+            throw new IllegalStateException(
+                    "Não é possível excluir a marca, pois existem produtos associados a ela."
+            );
+        }
 
         marcaRepository.delete(marca);
     }
