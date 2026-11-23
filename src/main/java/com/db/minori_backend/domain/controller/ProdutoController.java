@@ -48,6 +48,14 @@ public class ProdutoController {
                     schema = @Schema(implementation = ErroResponse.class)
             )
     )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Produto já cadastrado",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErroResponse.class)
+            )
+    )
     @PostMapping
     public ResponseEntity<ProdutoResponse> cadastrar(
             @Valid @RequestBody ProdutoRequest request) {
@@ -95,6 +103,14 @@ public class ProdutoController {
     @ApiResponse(
             responseCode = "404",
             description = "Produto ou relacionamento não encontrado",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErroResponse.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Produto já cadastrado",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = ErroResponse.class)

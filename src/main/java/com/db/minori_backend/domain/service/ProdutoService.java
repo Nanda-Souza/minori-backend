@@ -3,6 +3,7 @@ package com.db.minori_backend.domain.service;
 import com.db.minori_backend.domain.dto.ProdutoRequest;
 import com.db.minori_backend.domain.dto.ProdutoResponse;
 import com.db.minori_backend.domain.entity.*;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 import com.db.minori_backend.domain.mapper.ProdutoMapper;
 import com.db.minori_backend.domain.repository.*;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,10 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponse cadastrar(ProdutoRequest request) {
 
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, null);
+
         Catalogo catalogo = buscarCatalogo(request.catalogoId());
         Marca marca = buscarMarca(request.marcaId());
         Categoria categoria = buscarCategoria(request.categoriaId());
@@ -75,6 +80,10 @@ public class ProdutoService {
     public ProdutoResponse atualizar(Long id, ProdutoRequest request) {
 
         Produto produto = buscarProduto(id);
+
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, id);
 
         Catalogo catalogo = buscarCatalogo(request.catalogoId());
         Marca marca = buscarMarca(request.marcaId());
@@ -162,6 +171,19 @@ public class ProdutoService {
                         new RecursoNaoEncontradoException("Categoria não encontrada."));
     }
 
+    private void validarNomeDuplicado(String nome, Long id) {
+
+        boolean existe = id == null
+                ? produtoRepository.existsByNomeIgnoreCase(nome)
+                : produtoRepository.existsByNomeIgnoreCaseAndIdNot(nome, id);
+
+        if (existe) {
+            throw new RegraNegocioException(
+                    "Já existe um produto cadastrado com este nome."
+            );
+        }
+    }
+
     private void preencherProduto(
             Produto produto,
             ProdutoRequest request,
@@ -169,7 +191,7 @@ public class ProdutoService {
             Marca marca,
             Categoria categoria
     ) {
-        produto.setNome(request.nome());
+        produto.setNome(request.nome().trim());
         produto.setPreco(request.preco());
         produto.setQuantidade(request.quantidade());
         produto.setDescricao(request.descricao());

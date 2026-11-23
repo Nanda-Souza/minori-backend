@@ -9,6 +9,10 @@ public interface ProdutoRepository extends
         JpaRepository<Produto, Long>,
         JpaSpecificationExecutor<Produto>{
 
+    boolean existsByNomeIgnoreCase(String nome);
+
+    boolean existsByNomeIgnoreCaseAndIdNot(String nome, Long id);
+
     boolean existsByMarcaId(Long marcaId);
 
     boolean existsByCategoriaId(Long categoriaId);
