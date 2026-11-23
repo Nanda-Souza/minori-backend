@@ -33,8 +33,24 @@ public class MarcaService {
         );
     }
 
+    private void validarNomeDuplicado(String nome, Long id) {
+
+        boolean existe = id == null
+                ? marcaRepository.existsByNomeIgnoreCase(nome)
+                : marcaRepository.existsByNomeIgnoreCaseAndIdNot(nome, id);
+
+        if (existe) {
+            throw new RegraNegocioException(
+                    "Já existe uma marca cadastrada com este nome."
+            );
+        }
+    }
+
     @Transactional
     public MarcaResponse cadastrar(MarcaRequest request) {
+
+        validarNomeDuplicado(request.nome().trim(), null);
+
         Marca marca = new Marca();
         marca.setNome(request.nome());
 
@@ -65,6 +81,8 @@ public class MarcaService {
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
                         new RecursoNaoEncontradoException("Marca não encontrada."));
+
+        validarNomeDuplicado(request.nome().trim(), id);
 
         marca.setNome(request.nome());
 

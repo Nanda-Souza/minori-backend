@@ -1,14 +1,15 @@
+
 package com.db.minori_backend.domain.service;
 
 import com.db.minori_backend.domain.dto.CategoriaRequest;
 import com.db.minori_backend.domain.dto.CategoriaResponse;
 import com.db.minori_backend.domain.entity.Categoria;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 import com.db.minori_backend.domain.repository.CategoriaRepository;
 import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
-import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -33,10 +34,28 @@ public class CategoriaService {
         );
     }
 
+    private void validarNomeDuplicado(String nome, Long id) {
+
+        boolean existe = id == null
+                ? categoriaRepository.existsByNomeIgnoreCase(nome)
+                : categoriaRepository.existsByNomeIgnoreCaseAndIdNot(nome, id);
+
+        if (existe) {
+            throw new RegraNegocioException(
+                    "Já existe uma categoria cadastrada com este nome."
+            );
+        }
+    }
+
     @Transactional
     public CategoriaResponse cadastrar(CategoriaRequest request) {
+
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, null);
+
         Categoria categoria = new Categoria();
-        categoria.setNome(request.nome());
+        categoria.setNome(nome);
 
         Categoria salva = categoriaRepository.save(categoria);
 
@@ -62,11 +81,16 @@ public class CategoriaService {
 
     @Transactional
     public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
+
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
                         new RecursoNaoEncontradoException("Categoria não encontrada."));
 
-        categoria.setNome(request.nome());
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, id);
+
+        categoria.setNome(nome);
 
         Categoria atualizada = categoriaRepository.save(categoria);
 
@@ -88,6 +112,4 @@ public class CategoriaService {
 
         categoriaRepository.delete(categoria);
     }
-
-
 }

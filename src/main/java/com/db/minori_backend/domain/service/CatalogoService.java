@@ -1,14 +1,15 @@
+
 package com.db.minori_backend.domain.service;
 
 import com.db.minori_backend.domain.dto.CatalogoRequest;
 import com.db.minori_backend.domain.dto.CatalogoResponse;
 import com.db.minori_backend.domain.entity.Catalogo;
+import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
+import com.db.minori_backend.domain.exception.RegraNegocioException;
 import com.db.minori_backend.domain.repository.CatalogoRepository;
 import com.db.minori_backend.domain.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.db.minori_backend.domain.exception.RecursoNaoEncontradoException;
-import com.db.minori_backend.domain.exception.RegraNegocioException;
 
 import java.util.List;
 
@@ -33,10 +34,28 @@ public class CatalogoService {
         );
     }
 
+    private void validarNomeDuplicado(String nome, Long id) {
+
+        boolean existe = id == null
+                ? catalogoRepository.existsByNomeIgnoreCase(nome)
+                : catalogoRepository.existsByNomeIgnoreCaseAndIdNot(nome, id);
+
+        if (existe) {
+            throw new RegraNegocioException(
+                    "Já existe um catálogo cadastrado com este nome."
+            );
+        }
+    }
+
     @Transactional
     public CatalogoResponse cadastrar(CatalogoRequest request) {
+
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, null);
+
         Catalogo catalogo = new Catalogo();
-        catalogo.setNome(request.nome());
+        catalogo.setNome(nome);
 
         Catalogo salvo = catalogoRepository.save(catalogo);
 
@@ -62,11 +81,16 @@ public class CatalogoService {
 
     @Transactional
     public CatalogoResponse atualizar(Long id, CatalogoRequest request) {
+
         Catalogo catalogo = catalogoRepository.findById(id)
                 .orElseThrow(() ->
                         new RecursoNaoEncontradoException("Catálogo não encontrado."));
 
-        catalogo.setNome(request.nome());
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, id);
+
+        catalogo.setNome(nome);
 
         Catalogo atualizado = catalogoRepository.save(catalogo);
 
@@ -81,13 +105,11 @@ public class CatalogoService {
                         new RecursoNaoEncontradoException("Catálogo não encontrado."));
 
         if (produtoRepository.existsByCatalogoId(id)) {
-            throw new IllegalStateException(
+            throw new RegraNegocioException(
                     "Não é possível excluir o catálogo, pois existem produtos associados!"
             );
         }
 
         catalogoRepository.delete(catalogo);
     }
-
-
 }

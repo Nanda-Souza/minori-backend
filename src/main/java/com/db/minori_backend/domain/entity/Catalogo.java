@@ -14,6 +14,6 @@ public class Catalogo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 200)
     private String nome;
 }
