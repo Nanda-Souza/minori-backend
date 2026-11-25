@@ -49,10 +49,12 @@ public class MarcaService {
     @Transactional
     public MarcaResponse cadastrar(MarcaRequest request) {
 
-        validarNomeDuplicado(request.nome().trim(), null);
+        String nome = request.nome().trim();
+
+        validarNomeDuplicado(nome, null);
 
         Marca marca = new Marca();
-        marca.setNome(request.nome());
+        marca.setNome(nome);
 
         Marca salva = marcaRepository.save(marca);
 
@@ -78,13 +80,16 @@ public class MarcaService {
 
     @Transactional
     public MarcaResponse atualizar(Long id, MarcaRequest request) {
+
         Marca marca = marcaRepository.findById(id)
                 .orElseThrow(() ->
                         new RecursoNaoEncontradoException("Marca não encontrada."));
 
-        validarNomeDuplicado(request.nome().trim(), id);
+        String nome = request.nome().trim();
 
-        marca.setNome(request.nome());
+        validarNomeDuplicado(nome, id);
+
+        marca.setNome(nome);
 
         Marca atualizada = marcaRepository.save(marca);
 
